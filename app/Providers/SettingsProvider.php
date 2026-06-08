@@ -22,7 +22,11 @@ class SettingsProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $settingsService = $this->app->make(SettingsService::class);
-        $settingsService->setGlobalSettings();
+        try {
+            $settingsService = $this->app->make(SettingsService::class);
+            $settingsService->setGlobalSettings();
+        } catch (\Throwable) {
+            // Skip when database is unavailable during build or setup.
+        }
     }
 }

@@ -23,7 +23,11 @@ class PaymentSettingProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $paymentSettingsService = $this->app->make(PaymentSettingsService::class);
-        $paymentSettingsService->setGlobalSettings();
+        try {
+            $paymentSettingsService = $this->app->make(PaymentSettingsService::class);
+            $paymentSettingsService->setGlobalSettings();
+        } catch (\Throwable) {
+            // Skip when database is unavailable during build or setup.
+        }
     }
 }

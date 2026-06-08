@@ -21,21 +21,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // set dynamic timezone
-        $timezone = Setting::where('key', 'site_timezone')->first();
-        config()->set('app.timezone', $timezone->value);
-
-        // set default pagination design
         Paginator::useBootstrap();
 
-        // set pusher config
-        $keys = ['pusher_app_id', 'pusher_app_key', 'pusher_secret_key', 'pusher_cluster'];
-        $pusherConf = Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
+        try {
+            $timezone = Setting::where('key', 'site_timezone')->first();
+            if ($timezone) {
+                config()->set('app.timezone', $timezone->value);
+            }
 
-        config(['broadcasting.connections.pusher.key' => $pusherConf['pusher_app_key']]);
-        config(['broadcasting.connections.pusher.secret' => $pusherConf['pusher_secret_key']]);
-        config(['broadcasting.connections.pusher.app_id' => $pusherConf['pusher_app_id']]);
-        config(['broadcasting.connections.pusher.options.cluster' => $pusherConf['pusher_cluster']]);
+            $keys = ['pusher_app_id', 'pusher_app_key', 'pusher_secret_key', 'pusher_cluster'];
+            $pusherConf = Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
 
+            config(['broadcasting.connections.pusher.key' => $pusherConf['pusher_app_key'] ?? null]);
+            config(['broadcasting.connections.pusher.secret' => $pusherConf['pusher_secret_key'] ?? null]);
+            config(['broadcasting.connections.pusher.app_id' => $pusherConf['pusher_app_id'] ?? null]);
+            config(['broadcasting.connections.pusher.options.cluster' => $pusherConf['pusher_cluster'] ?? null]);
+        } catch (\Throwable) {
+            // Skip when database is unavailable during build or setup.
+        }
     }
 }
