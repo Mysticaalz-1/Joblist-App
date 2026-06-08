@@ -51,6 +51,7 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php -r \"if (!getenv('APP_KEY')) { putenv('APP_KEY=base64:'.base64_encode(random_bytes(32))); }\"",
             "@php artisan package:discover --ansi"
         ],
         "post-update-cmd": [
